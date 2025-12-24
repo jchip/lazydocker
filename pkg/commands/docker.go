@@ -43,8 +43,9 @@ type DockerCommand struct {
 	ContainerMutex         deadlock.Mutex
 	ServiceMutex           deadlock.Mutex
 
-	Closers     []io.Closer
-	ContextName string
+	Closers      []io.Closer
+	ContextName  string
+	DockerHost   string
 }
 
 var _ io.Closer = &DockerCommand{}
@@ -112,6 +113,7 @@ func NewDockerCommand(log *logrus.Entry, osCommand *OSCommand, tr *i18n.Translat
 		InDockerComposeProject: true,
 		Closers:                []io.Closer{tunnelCloser},
 		ContextName:            getCurrentContextName(),
+		DockerHost:             dockerHost,
 	}
 
 	dockerCommand.setDockerComposeCommand(config)

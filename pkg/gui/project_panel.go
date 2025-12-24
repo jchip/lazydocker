@@ -3,6 +3,7 @@ package gui
 import (
 	"bytes"
 	"context"
+	"os"
 	"path"
 	"strings"
 
@@ -73,8 +74,27 @@ func (gui *Gui) getProjectPanel() *panels.SideListPanel[*commands.Project] {
 }
 
 func (gui *Gui) refreshProject() error {
-	gui.Panels.Projects.SetItems([]*commands.Project{{Name: gui.getProjectName()}})
+	gui.Panels.Projects.SetItems([]*commands.Project{
+		{Name: "📁 " + gui.getProjectName()},
+		{Name: "🐳 " + gui.DockerCommand.ContextName},
+		{Name: gui.shortenPath(gui.DockerCommand.DockerHost)},
+	})
 	return gui.Panels.Projects.RerenderList()
+}
+
+func (gui *Gui) shortenPath(p string) string {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return p
+	}
+	if strings.HasPrefix(p, homeDir) {
+		return "~" + p[len(homeDir):]
+	}
+	// Handle URI schemes like unix:///Users/...
+	if idx := strings.Index(p, homeDir); idx > 0 {
+		return p[:idx] + "~" + p[idx+len(homeDir):]
+	}
+	return p
 }
 
 func (gui *Gui) getProjectName() string {

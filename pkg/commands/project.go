@@ -1,5 +1,7 @@
 package commands
 
 type Project struct {
-	Name string
+	Name        string
+	ContextName string
+	DockerHost  string
 }
