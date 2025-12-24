@@ -142,6 +142,9 @@ type GuiConfig struct {
 	// Window border style.
 	// One of 'rounded' (default) | 'single' | 'double' | 'hidden'
 	Border string `yaml:"border"`
+
+	// Determines if utilizing nerd font icons
+	NerdFontsVersion string `yaml:"nerdFontsVersion"`
 }
 
 // CommandTemplatesConfig determines what commands actually get called when we

@@ -319,3 +319,58 @@ quux:
 		}
 	}
 }
+
+func TestTruncateWith(t *testing.T) {
+	type scenario struct {
+		str      string
+		limit    int
+		expected string
+	}
+
+	scenarios := []scenario{
+		{
+			"hello world",
+			5,
+			"hello",
+		},
+		{
+			"hello world",
+			11,
+			"hello world",
+		},
+		{
+			"hello world",
+			100,
+			"hello world",
+		},
+		{
+			"你好世界",
+			4,
+			"你好",
+		},
+		{
+			"你好世界",
+			3,
+			"你", // Second double-width char would exceed limit of 3 (2+2=4)
+		},
+		{
+			"🌟🌟🌟",
+			4,
+			"🌟🌟",
+		},
+		{
+			"a🌟b",
+			3,
+			"a🌟",
+		},
+		{
+			"a🌟b",
+			2,
+			"a", // 'a' (1) + '🌟' (2) = 3 > 2
+		},
+	}
+
+	for _, s := range scenarios {
+		assert.EqualValues(t, s.expected, TruncateWith(s.str, s.limit))
+	}
+}

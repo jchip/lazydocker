@@ -16,22 +16,22 @@ type Localizer struct {
 	S   TranslationSet
 }
 
-func NewTranslationSetFromConfig(log *logrus.Entry, configLanguage string) (*TranslationSet, error) {
+func NewTranslationSetFromConfig(log *logrus.Entry, configLanguage string, nerdFontsVersion string) (*TranslationSet, error) {
 	if configLanguage == "auto" {
 		language := detectLanguage(jibber_jabber.DetectLanguage)
-		return NewTranslationSet(log, language), nil
+		return NewTranslationSet(log, language, nerdFontsVersion), nil
 	}
 
 	for key := range GetTranslationSets() {
 		if key == configLanguage {
-			return NewTranslationSet(log, configLanguage), nil
+			return NewTranslationSet(log, configLanguage, nerdFontsVersion), nil
 		}
 	}
 
-	return NewTranslationSet(log, "en"), errors.New("Language not found: " + configLanguage)
+	return NewTranslationSet(log, "en", nerdFontsVersion), errors.New("Language not found: " + configLanguage)
 }
 
-func NewTranslationSet(log *logrus.Entry, language string) *TranslationSet {
+func NewTranslationSet(log *logrus.Entry, language string, nerdFontsVersion string) *TranslationSet {
 	log.Info("language: " + language)
 
 	baseSet := englishSet()
@@ -40,6 +40,19 @@ func NewTranslationSet(log *logrus.Entry, language string) *TranslationSet {
 		if strings.HasPrefix(language, languageCode) {
 			_ = mergo.Merge(&baseSet, translationSet, mergo.WithOverride)
 		}
+	}
+
+	if nerdFontsVersion != "" {
+		// Icons from: https://www.nerdfonts.com/cheat-sheet
+		baseSet.ServicesTitle = " Services"     // nf-fa-server
+		baseSet.ContainersTitle = " Containers" // nf-fa-cube
+		baseSet.StandaloneContainersTitle = " Standalone Containers"
+		baseSet.ImagesTitle = " Images"     // nf-linux-docker
+		baseSet.VolumesTitle = " Volumes"   // nf-fa-database
+		baseSet.NetworksTitle = " Networks" // nf-fa-sitemap
+		baseSet.ConfigTitle = " Config"     // nf-oct-gear
+		baseSet.ProjectTitle = " Project"   // nf-fa-folder_open
+		baseSet.ContainerConfigTitle = " Container Config"
 	}
 
 	return &baseSet

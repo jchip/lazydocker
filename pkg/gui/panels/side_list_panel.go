@@ -233,6 +233,14 @@ func (self *SideListPanel[T]) RerenderList() error {
 		if err != nil {
 			return err
 		}
+
+		width, _ := self.View.Size()
+		lines := strings.Split(renderedTable, "\n")
+		for i, line := range lines {
+			lines[i] = utils.TruncateWith(line, width)
+		}
+		renderedTable = strings.Join(lines, "\n")
+
 		fmt.Fprint(self.View, renderedTable)
 
 		if self.OnRerender != nil {

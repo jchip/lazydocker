@@ -46,7 +46,7 @@ func NewDummyDockerCommandWithOSCommand(osCommand *OSCommand) *DockerCommand {
 	return &DockerCommand{
 		Log:       NewDummyLog(),
 		OSCommand: osCommand,
-		Tr:        i18n.NewTranslationSet(NewDummyLog(), newAppConfig.UserConfig.Gui.Language),
+		Tr:        i18n.NewTranslationSet(NewDummyLog(), newAppConfig.UserConfig.Gui.Language, newAppConfig.UserConfig.Gui.NerdFontsVersion),
 		Config:    newAppConfig,
 	}
 }

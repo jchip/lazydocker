@@ -358,6 +358,25 @@ func SafeTruncate(str string, limit int) string {
 	}
 }
 
+// TruncateWith truncates a string to a given width, respecting unicode characters
+func TruncateWith(str string, limit int) string {
+	if runewidth.StringWidth(str) <= limit {
+		return str
+	}
+
+	curWidth := 0
+	var buf bytes.Buffer
+	for _, r := range str {
+		w := runewidth.RuneWidth(r)
+		if curWidth+w > limit {
+			break
+		}
+		buf.WriteRune(r)
+		curWidth += w
+	}
+	return buf.String()
+}
+
 func IsValidHexValue(v string) bool {
 	if len(v) != 4 && len(v) != 7 {
 		return false
