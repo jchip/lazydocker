@@ -43,7 +43,8 @@ type DockerCommand struct {
 	ContainerMutex         deadlock.Mutex
 	ServiceMutex           deadlock.Mutex
 
-	Closers []io.Closer
+	Closers     []io.Closer
+	ContextName string
 }
 
 var _ io.Closer = &DockerCommand{}
@@ -110,6 +111,7 @@ func NewDockerCommand(log *logrus.Entry, osCommand *OSCommand, tr *i18n.Translat
 		ErrorChan:              errorChan,
 		InDockerComposeProject: true,
 		Closers:                []io.Closer{tunnelCloser},
+		ContextName:            getCurrentContextName(),
 	}
 
 	dockerCommand.setDockerComposeCommand(config)
@@ -363,10 +365,29 @@ func (c *DockerCommand) DockerComposeConfig() string {
 	return output
 }
 
+// getCurrentContextName returns the name of the current Docker context
+func getCurrentContextName() string {
+	if ctx := os.Getenv("DOCKER_CONTEXT"); ctx != "" {
+		return ctx
+	}
+	if profile := os.Getenv("COLIMA_PROFILE"); profile != "" {
+		return "colima-" + profile
+	}
+	cf, err := cliconfig.Load(cliconfig.Dir())
+	if err != nil {
+		return "default"
+	}
+	if cf.CurrentContext != "" {
+		return cf.CurrentContext
+	}
+	return "default"
+}
+
 // determineDockerHost tries to the determine the docker host that we should connect to
 // in the following order of decreasing precedence:
 //   - value of "DOCKER_HOST" environment variable
 //   - host retrieved from the current context (specified via DOCKER_CONTEXT)
+//   - host retrieved from the current context (derived from COLIMA_PROFILE as "colima-<profile>")
 //   - "default docker host" for the host operating system, otherwise
 func determineDockerHost() (string, error) {
 	// If the docker host is explicitly set via the "DOCKER_HOST" environment variable,
@@ -376,6 +397,12 @@ func determineDockerHost() (string, error) {
 	}
 
 	currentContext := os.Getenv("DOCKER_CONTEXT")
+	if currentContext == "" {
+		// Support COLIMA_PROFILE to derive docker context name
+		if profile := os.Getenv("COLIMA_PROFILE"); profile != "" {
+			currentContext = "colima-" + profile
+		}
+	}
 	if currentContext == "" {
 		cf, err := cliconfig.Load(cliconfig.Dir())
 		if err != nil {
