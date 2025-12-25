@@ -92,6 +92,14 @@ func (gui *Gui) Menu(opts CreateMenuOptions) error {
 	gui.Panels.Menu.SetItems(opts.Items)
 	gui.Panels.Menu.SetSelectedLineIdx(0)
 
+	// First render populates content and triggers resize via OnRerender.
+	// Content gets truncated to initial small view size.
+	if err := gui.Panels.Menu.RerenderList(); err != nil {
+		return err
+	}
+
+	// Second render uses the correct view size after resize.
+	// This fixes the race condition where content was truncated before resize.
 	if err := gui.Panels.Menu.RerenderList(); err != nil {
 		return err
 	}
