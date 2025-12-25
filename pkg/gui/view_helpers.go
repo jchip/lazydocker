@@ -105,12 +105,12 @@ func (gui *Gui) focusPoint(selectedX int, selectedY int, lineCount int, v *gocui
 	}
 
 	if originalOy != oy {
-		_ = v.SetOrigin(ox, oy)
+		v.SetOrigin(ox, oy)
 	}
 
 	cy = selectedY - oy
 	if originalCy != cy {
-		_ = v.SetCursor(cx, selectedY-oy)
+		v.SetCursor(cx, selectedY-oy)
 	}
 }
 
@@ -119,8 +119,8 @@ func (gui *Gui) FocusY(selectedY int, lineCount int, v *gocui.View) {
 }
 
 func (gui *Gui) ResetOrigin(v *gocui.View) {
-	_ = v.SetOrigin(0, 0)
-	_ = v.SetCursor(0, 0)
+	v.SetOrigin(0, 0)
+	v.SetCursor(0, 0)
 }
 
 func (gui *Gui) cleanString(s string) string {
@@ -141,12 +141,8 @@ func (gui *Gui) renderString(g *gocui.Gui, viewName, s string) error {
 		if err != nil {
 			return nil // return gracefully if view has been deleted
 		}
-		if err := v.SetOrigin(0, 0); err != nil {
-			return err
-		}
-		if err := v.SetCursor(0, 0); err != nil {
-			return err
-		}
+		v.SetOrigin(0, 0)
+		v.SetCursor(0, 0)
 		return gui.setViewContent(v, s)
 	})
 	return nil
@@ -245,8 +241,8 @@ func (gui *Gui) popupPanelFocused() bool {
 func (gui *Gui) clearMainView() {
 	mainView := gui.Views.Main
 	mainView.Clear()
-	_ = mainView.SetOrigin(0, 0)
-	_ = mainView.SetCursor(0, 0)
+	mainView.SetOrigin(0, 0)
+	mainView.SetCursor(0, 0)
 }
 
 func (gui *Gui) HandleClick(v *gocui.View, itemCount int, selectedLine *int, handleSelect func() error) error {
